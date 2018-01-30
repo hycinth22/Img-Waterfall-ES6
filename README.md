@@ -20,3 +20,7 @@ JS
     waterfall.addImg("http:://../");
     waterfall.addImg("http:://../");
     
+
+# Demo
+
+[Demo Page](https://inkedawn.github.io/Img-Waterfall-ES6/demo.html)
