@@ -6,6 +6,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Waterfall = function () {
     function Waterfall(container) {
+        var ordered = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
         _classCallCheck(this, Waterfall);
 
         container.style.position = "relative";
@@ -16,6 +18,9 @@ var Waterfall = function () {
         };
         this.urls = [];
         this.boxs = [];
+        this.ordered = ordered;
+        this.nextInsertOrder = 0;
+        this.nextLoadOrder = 0;
     }
 
     _createClass(Waterfall, [{
@@ -91,20 +96,50 @@ var Waterfall = function () {
 
             var aBox = document.createElement("div");
             aBox.style.visibility = "hidden";
-            aBox.className = "box";
+            aBox.className = "waterfall-box";
             var pic = document.createElement("div");
-            pic.className = "pic";
+            pic.className = "waterfall-pic";
             var img = document.createElement("img");
+            img.className = "waterfall-img";
             pic.appendChild(img);
             aBox.appendChild(pic);
             this.cont.appendChild(aBox);
             this.boxs.push(aBox);
             img.setAttribute("src", url);
+            img.setAttribute("data-order", this.nextInsertOrder.toString());
+            this.nextInsertOrder++;
             img.onload = function (e) {
-                var elem = e.target.parentNode.parentNode;
-                _this2.adjustPos(elem, _this2.colInfo);
-                elem.style.visibility = "visible";
+                var waterfall = _this2;
+                var img = e.target;
+                function tryLoad() {
+                    var order = Number(img.getAttribute("data-order"));
+                    console.log("Try loading" + order);
+                    if (waterfall.testShouldLoad(img)) {
+                        var elem = img.parentNode.parentNode;
+                        waterfall.adjustPos(elem, waterfall.colInfo);
+                        elem.style.visibility = "visible";
+                        console.log("Loading img" + order);
+                        waterfall.loadNext();
+                    } else {
+                        var waitTime = (order - waterfall.nextLoadOrder) * 25;
+                        console.log("Wait for retry loading" + order + " after" + waitTime);
+                        setTimeout(tryLoad, waitTime);
+                    }
+                }
+                tryLoad();
             };
+        }
+    }, {
+        key: "testShouldLoad",
+        value: function testShouldLoad(img) {
+            if (!this.ordered) return true;
+            var order = Number(img.getAttribute("data-order"));
+            return this.nextLoadOrder === order;
+        }
+    }, {
+        key: "loadNext",
+        value: function loadNext() {
+            this.nextLoadOrder++;
         }
     }, {
         key: "getTopPosIndex",
