@@ -18,9 +18,12 @@ class Waterfall{
         for (let imgSrc of this.urls){
             this.addImg(imgSrc);
         }
-        window.onresize = ()=>{
-            this.relayout();
-        };
+        window.addEventListener("resize", 
+            (e)=>{
+                this.relayout();
+            },
+            { passive: true } 
+        );
     }
     addUrls(urls){
         this.urls = this.urls.concat(urls);
@@ -40,31 +43,37 @@ class Waterfall{
         img.setAttribute("src", url);
         img.setAttribute("data-order",  this.nextInsertOrder.toString());
         this.nextInsertOrder++;
-        img.onload = (e)=>{
-            let waterfall = this;
-            let img = e.target;
-            function tryLoad(){
-                let order = Number(img.getAttribute("data-order"));
-                console.log("Try loading" + order);
-                if (waterfall.testShouldLoad(img))
-                {
-                    let elem = img.parentNode.parentNode;
-                    waterfall.adjustPos(elem, waterfall.colInfo);
-                    elem.style.visibility = "visible";
-                    console.log("Loading img" + order);
-                    waterfall.loadNext();
-                }else{
-                    let waitTime = (order - waterfall.nextLoadOrder)* 25;
-                    console.log("Wait for retry loading" + order + " after" + waitTime);
-                    setTimeout(tryLoad, waitTime);
+        img.addEventListener("load", 
+            (e)=>{
+                let waterfall = this;
+                let img = e.target;
+                function tryLoad(){
+                    let order = Number(img.getAttribute("data-order"));
+                    console.log("Try loading" + order);
+                    if (waterfall.testShouldLoad(img))
+                    {
+                        let elem = img.parentNode.parentNode;
+                        waterfall.adjustPos(elem, waterfall.colInfo);
+                        elem.style.visibility = "visible";
+                        console.log("Loading img" + order);
+                        waterfall.loadNext();
+                    }else{
+                        let waitTime = (order - waterfall.nextLoadOrder)* 25;
+                        console.log("Wait for retry loading" + order + " after" + waitTime);
+                        setTimeout(tryLoad, waitTime);
+                    }
                 }
-            }
-            tryLoad();
-        };
-        img.onresize = (e)=>{
-            console.log("resize img");
-            this.relayout();
-        };
+                tryLoad();
+            },
+            { once: true, passive: true }
+        );
+        img.addEventListener("resize", 
+            img.onresize = (e)=>{
+                console.log("resize img");
+                this.relayout();
+            },
+            { passive: true }
+        );
     }
     testShouldLoad(img){
         if (!this.ordered)
