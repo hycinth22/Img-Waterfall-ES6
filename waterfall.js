@@ -32,10 +32,11 @@ class Waterfall{
     addImg(url){
         let aBox = document.createElement("div");
         aBox.style.visibility = "hidden";
-        aBox.className = "box";
+        aBox.className = "waterfall-box";
         let pic = document.createElement("div");
-        pic.className = "pic";
+        pic.className = "waterfall-pic";
         let img = document.createElement("img");
+        img.className = "waterfall-img";
         pic.appendChild(img)
         aBox.appendChild(pic);
         this.cont.appendChild(aBox);
