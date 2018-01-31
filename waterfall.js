@@ -18,15 +18,8 @@ class Waterfall{
         for (let imgSrc of this.urls){
             this.addImg(imgSrc);
         }
-        window.onresize = (e)=>{
-            this.colInfo = {
-                left:[],
-                height:[]
-            };
-            for (let elem of this.boxs)
-            {
-                this.adjustPos(elem);
-            }
+        window.onresize = ()=>{
+            this.relayout();
         };
     }
     addUrls(urls){
@@ -68,6 +61,10 @@ class Waterfall{
             }
             tryLoad();
         };
+        img.onresize = (e)=>{
+            console.log("resize img");
+            this.relayout();
+        };
     }
     testShouldLoad(img){
         if (!this.ordered)
@@ -99,6 +96,16 @@ class Waterfall{
             }
         }
         return index;
+    }
+    relayout(){
+        this.colInfo = {
+            left:[],
+            height:[]
+        };
+        for (let elem of this.boxs)
+        {
+            this.adjustPos(elem);
+        }
     }
     adjustPos(elem){
         let i = this.getTopPosIndex(this.colInfo);
