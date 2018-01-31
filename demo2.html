@@ -21,7 +21,7 @@ h1 {
 <body>
 <h1>Waterfall Wall</h1>
 
-<h2>Unsorted</h2>
+<h2>Sorted</h2>
 <div id="mainContainer"></div>
 
 </body>
@@ -50,7 +50,7 @@ h1 {
         "http://res.jisuanke.com/img/upload/20160314/c6b624b9b1608a55b936f9e6c6b26313ac553ae1.jpeg",
         "http://res.jisuanke.com/img/upload/20160314/99408c5922144d97b087f222de50d7d912ee5c61.jpeg"
     ];
-    var waterfall =  new Waterfall(document.getElementById("mainContainer"));
+    var waterfall =  new Waterfall(document.getElementById("mainContainer"), true);
     waterfall.addUrls(json);
     waterfall.create();
 </script>
