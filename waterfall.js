@@ -1,7 +1,7 @@
 "use strict";
 
 class Waterfall{
-    constructor (container) {
+    constructor (container, ordered=false) {
         container.style.position = "relative";
         this.cont = container;
         this.colInfo = {
@@ -10,6 +10,9 @@ class Waterfall{
         };
         this.urls = [];
         this.boxs = [];
+        this.ordered = ordered;
+        this.nextInsertOrder = 0;
+        this.nextLoadOrder = 0;
     }
     create(){
         for (let imgSrc of this.urls){
@@ -42,12 +45,40 @@ class Waterfall{
         this.cont.appendChild(aBox);
         this.boxs.push(aBox);
         img.setAttribute("src", url);
+        img.setAttribute("data-order",  this.nextInsertOrder.toString());
+        this.nextInsertOrder++;
         img.onload = (e)=>{
-            let elem = e.target.parentNode.parentNode;
-            this.adjustPos(elem, this.colInfo);
-            elem.style.visibility = "visible";
+            let waterfall = this;
+            let img = e.target;
+            function tryLoad(){
+                let order = Number(img.getAttribute("data-order"));
+                console.log("Try loading" + order);
+                if (waterfall.testShouldLoad(img))
+                {
+                    let elem = img.parentNode.parentNode;
+                    waterfall.adjustPos(elem, waterfall.colInfo);
+                    elem.style.visibility = "visible";
+                    console.log("Loading img" + order);
+                    waterfall.loadNext();
+                }else{
+                    let waitTime = (order - waterfall.nextLoadOrder)* 25;
+                    console.log("Wait for retry loading" + order + " after" + waitTime);
+                    setTimeout(tryLoad, waitTime);
+                }
+            }
+            tryLoad();
         };
     }
+    testShouldLoad(img){
+        if (!this.ordered)
+            return true;
+        let order = Number(img.getAttribute("data-order"));
+        return this.nextLoadOrder === order;
+    }
+    loadNext(){
+        this.nextLoadOrder++;
+    }
+
     getTopPosIndex(){
         if (this.colInfo.height.length < 4)
         {
